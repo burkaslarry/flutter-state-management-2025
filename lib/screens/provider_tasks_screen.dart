@@ -4,6 +4,17 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../models/task.dart'; // Ensure this path is correct
 
+/// Provider Tasks Screen
+/// 
+/// This screen demonstrates the Provider pattern:
+/// 1. Simple state management using ChangeNotifier
+/// 2. Direct state access through Provider.of or Consumer
+/// 3. Reactive UI updates with notifyListeners
+/// 
+/// Key components:
+/// - ChangeNotifier: Base class for state management
+/// - Consumer: Rebuilds UI based on state changes
+/// - Provider: Provides state to widget tree
 class ProviderTasksScreen extends StatelessWidget {
   const ProviderTasksScreen({super.key});
 
@@ -13,6 +24,7 @@ class ProviderTasksScreen extends StatelessWidget {
       appBar: AppBar(
         title: const Text('Provider Tasks'),
       ),
+      // Consumer rebuilds only when TaskProvider notifies listeners
       body: Consumer<TaskProvider>(
         builder: (context, taskProvider, child) {
           if (taskProvider.tasks.isEmpty) {
@@ -30,6 +42,7 @@ class ProviderTasksScreen extends StatelessWidget {
                 child: ListTile(
                   leading: Checkbox(
                     value: task.isCompleted,
+                    // Direct state modification through provider
                     onChanged: (_) => taskProvider.toggleTask(task.id),
                     activeColor: Colors.green,
                   ),
@@ -69,22 +82,28 @@ class ProviderTasksScreen extends StatelessWidget {
     );
   }
 
+  /// Shows a dialog to add a new task
+  /// 
+  /// Demonstrates:
+  /// 1. Form validation
+  /// 2. Using Provider to add task
+  /// 3. Dialog management
   void _showAddTaskDialog(BuildContext context) {
     final titleController = TextEditingController();
     final descriptionController = TextEditingController();
-    final formKey = GlobalKey<FormState>(); // For validation
+    final formKey = GlobalKey<FormState>();
 
     showDialog(
       context: context,
       builder: (dialogContext) => AlertDialog(
         title: const Text('Add New Task'),
         content: SingleChildScrollView(
-          child: Form( // Wrap with Form for validation
+          child: Form(
             key: formKey,
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                TextFormField( // Use TextFormField for validation
+                TextFormField(
                   controller: titleController,
                   decoration: const InputDecoration(
                     labelText: 'Title',
@@ -107,7 +126,6 @@ class ProviderTasksScreen extends StatelessWidget {
                     border: OutlineInputBorder(),
                   ),
                   maxLines: 3,
-                  // No validator needed if description is optional
                 ),
               ],
             ),
@@ -120,11 +138,11 @@ class ProviderTasksScreen extends StatelessWidget {
           ),
           ElevatedButton(
             onPressed: () {
-              if (formKey.currentState!.validate()) { // Validate the form
-                // Use context.read here as we are in a callback and not rebuilding
+              if (formKey.currentState!.validate()) {
+                // Use Provider.of with listen: false for one-time access
                 Provider.of<TaskProvider>(context, listen: false).addTask(
                   Task(
-                    id: DateTime.now().millisecondsSinceEpoch.toString(), // More unique ID
+                    id: DateTime.now().millisecondsSinceEpoch.toString(),
                     title: titleController.text.trim(),
                     description: descriptionController.text.trim(),
                   ),
@@ -139,7 +157,11 @@ class ProviderTasksScreen extends StatelessWidget {
     );
   }
 
-  // Optional: Delete confirmation dialog
+  /// Shows a confirmation dialog before deleting a task
+  /// 
+  /// Demonstrates:
+  /// 1. Confirmation dialog pattern
+  /// 2. Using Provider to delete task
   void _showDeleteConfirmDialog(BuildContext context, TaskProvider taskProvider, String taskId) {
     showDialog(
       context: context,
@@ -164,7 +186,14 @@ class ProviderTasksScreen extends StatelessWidget {
   }
 }
 
+/// TaskProvider class that extends ChangeNotifier for state management
+/// 
+/// Handles:
+/// 1. Task list management
+/// 2. Task state modifications
+/// 3. Notifying listeners of changes
 class TaskProvider extends ChangeNotifier {
+  // Private list of tasks
   final List<Task> _tasks = [
     Task(
       id: '1',
@@ -179,13 +208,16 @@ class TaskProvider extends ChangeNotifier {
     ),
   ];
 
-  List<Task> get tasks => List.unmodifiable(_tasks); // Return an unmodifiable list
+  // Public getter that returns an unmodifiable list
+  List<Task> get tasks => List.unmodifiable(_tasks);
 
+  /// Adds a new task and notifies listeners
   void addTask(Task task) {
     _tasks.add(task);
-    notifyListeners(); // Crucial: Notifies listeners about the change
+    notifyListeners(); // Notify all listeners of the change
   }
 
+  /// Toggles task completion status and notifies listeners
   void toggleTask(String id) {
     final index = _tasks.indexWhere((task) => task.id == id);
     if (index != -1) {
@@ -196,7 +228,7 @@ class TaskProvider extends ChangeNotifier {
     }
   }
 
-  // Optional: Add a delete task method
+  /// Deletes a task and notifies listeners
   void deleteTask(String id) {
     _tasks.removeWhere((task) => task.id == id);
     notifyListeners();
