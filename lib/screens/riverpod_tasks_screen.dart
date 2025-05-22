@@ -2,6 +2,19 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../models/task.dart'; // Ensure this path is correct
 
+/// Riverpod Tasks Screen
+/// 
+/// This screen demonstrates the Riverpod pattern:
+/// 1. Declarative state management
+/// 2. Dependency injection
+/// 3. State immutability
+/// 
+/// Key components:
+/// - Provider: Declares state and logic
+/// - Consumer: Rebuilds UI based on state changes
+/// - StateNotifier: Manages state updates
+/// - StateNotifierProvider: Provides state notifier to widget tree
+
 // Provider for managing the list of tasks
 final tasksProvider = StateNotifierProvider<TasksNotifier, List<Task>>((ref) {
   return TasksNotifier();
@@ -19,7 +32,12 @@ final filteredTasksProvider = Provider<List<Task>>((ref) {
       : tasks.where((task) => !task.isCompleted).toList();
 });
 
-// Notifier class for managing task state
+/// StateNotifier for managing tasks
+/// 
+/// Handles:
+/// 1. Adding new tasks
+/// 2. Toggling task completion
+/// 3. Deleting tasks
 class TasksNotifier extends StateNotifier<List<Task>> {
   TasksNotifier()
       : super([
@@ -56,7 +74,7 @@ class TasksNotifier extends StateNotifier<List<Task>> {
   }
 }
 
-// The main screen widget for displaying tasks
+/// Main screen widget using Riverpod for state management
 class RiverpodTasksScreen extends ConsumerWidget {
   const RiverpodTasksScreen({super.key});
 
@@ -128,7 +146,12 @@ class RiverpodTasksScreen extends ConsumerWidget {
     );
   }
 
-  // Shows a dialog to add a new task
+  /// Shows a dialog to add a new task
+  /// 
+  /// Demonstrates:
+  /// 1. Form validation
+  /// 2. Using Riverpod to add task
+  /// 3. Dialog management
   void _showAddTaskDialog(BuildContext context, WidgetRef ref) {
     final titleController = TextEditingController();
     final descriptionController = TextEditingController();
@@ -197,6 +220,11 @@ class RiverpodTasksScreen extends ConsumerWidget {
     );
   }
 
+  /// Shows a confirmation dialog before deleting a task
+  /// 
+  /// Demonstrates:
+  /// 1. Confirmation dialog pattern
+  /// 2. Using Riverpod to delete task
   void _showDeleteConfirmDialog(BuildContext context, WidgetRef ref, String taskId) {
     showDialog(
       context: context,

@@ -5,6 +5,18 @@ import '../blocs/task_bloc/task_event.dart';
 import '../blocs/task_bloc/task_state.dart';
 import '../models/task.dart';
 
+/// BLoC Tasks Screen
+/// 
+/// This screen demonstrates the BLoC (Business Logic Component) pattern:
+/// 1. Separation of business logic from UI
+/// 2. Event-driven state management
+/// 3. Unidirectional data flow
+/// 
+/// Key components:
+/// - BlocBuilder: Rebuilds UI based on state changes
+/// - TaskBloc: Manages business logic and state
+/// - TaskEvent: Represents user actions
+/// - TaskState: Represents the current state
 class BlocTasksScreen extends StatelessWidget {
   const BlocTasksScreen({super.key});
 
@@ -14,14 +26,18 @@ class BlocTasksScreen extends StatelessWidget {
       appBar: AppBar(
         title: const Text('BLoC Tasks'),
       ),
+      // BlocBuilder listens to state changes and rebuilds UI accordingly
       body: BlocBuilder<TaskBloc, TaskState>(
         builder: (context, state) {
+          // Handle loading state
           if (state is TasksLoading) {
             return const Center(child: CircularProgressIndicator());
           }
+          // Handle error state
           if (state is TasksError) {
             return Center(child: Text('Error: ${state.message}'));
           }
+          // Handle loaded state
           if (state is TasksLoaded) {
             if (state.filteredTasks.isEmpty) {
               return const Center(child: Text('No tasks yet. Add some!'));
@@ -36,6 +52,7 @@ class BlocTasksScreen extends StatelessWidget {
                   child: ListTile(
                     leading: Checkbox(
                       value: task.isCompleted,
+                      // Dispatch ToggleTaskCompletion event
                       onChanged: (_) => context.read<TaskBloc>().add(ToggleTaskCompletion(task.id)),
                       activeColor: Colors.green,
                     ),
@@ -74,6 +91,12 @@ class BlocTasksScreen extends StatelessWidget {
     );
   }
 
+  /// Shows a dialog to add a new task
+  /// 
+  /// Demonstrates:
+  /// 1. Form validation
+  /// 2. Dispatching AddTask event
+  /// 3. Dialog management
   void _showAddTaskDialog(BuildContext context) {
     final titleController = TextEditingController();
     final descriptionController = TextEditingController();
@@ -124,6 +147,7 @@ class BlocTasksScreen extends StatelessWidget {
           ElevatedButton(
             onPressed: () {
               if (formKey.currentState!.validate()) {
+                // Dispatch AddTask event with new task
                 context.read<TaskBloc>().add(AddTask(
                   Task(
                     id: DateTime.now().millisecondsSinceEpoch.toString(),
@@ -141,6 +165,11 @@ class BlocTasksScreen extends StatelessWidget {
     );
   }
 
+  /// Shows a confirmation dialog before deleting a task
+  /// 
+  /// Demonstrates:
+  /// 1. Confirmation dialog pattern
+  /// 2. Dispatching DeleteTask event
   void _showDeleteConfirmDialog(BuildContext context, String taskId) {
     showDialog(
       context: context,
@@ -154,6 +183,7 @@ class BlocTasksScreen extends StatelessWidget {
           ),
           TextButton(
             onPressed: () {
+              // Dispatch DeleteTask event
               context.read<TaskBloc>().add(DeleteTask(taskId));
               Navigator.pop(dialogContext);
             },
